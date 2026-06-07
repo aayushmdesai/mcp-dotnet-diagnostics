@@ -14,6 +14,7 @@ builder
     .WithTools<MemoryStatsTool>()
     .WithTools<GcEventsTool>()
     .WithTools<ListCountersTool>()
-    .WithTools<ThreadStatsTool>();
+    .WithTools<ThreadStatsTool>()
+    .WithTools<EventCountersTool>();
 
 await builder.Build().RunAsync();

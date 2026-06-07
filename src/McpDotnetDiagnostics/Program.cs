@@ -7,6 +7,11 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.Logging.ClearProviders();
 
-builder.Services.AddMcpServer().WithStdioServerTransport().WithTools<ProcessInfoTool>();
-
+builder
+    .Services.AddMcpServer()
+    .WithStdioServerTransport()
+    .WithTools<ProcessInfoTool>()
+    .WithTools<MemoryStatsTool>()
+    .WithTools<GcEventsTool>()
+    .WithTools<ListCountersTool>();
 await builder.Build().RunAsync();

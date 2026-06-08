@@ -13,6 +13,8 @@ tells you what's actually wrong.
 
 ## What this looks like in practice
 
+![Health check demo](docs/assets/demo.gif)
+
 You ask:
 > *"Why does my API have high memory usage? PID is 12345."*
 

@@ -1,3 +1,5 @@
+![CI](https://github.com/aayushmdesai/mcp-dotnet-diagnostics/actions/workflows/ci.yml/badge.svg)
+
 # mcp-dotnet-diagnostics
 
 Give your AI assistant eyes into your .NET application's runtime health.

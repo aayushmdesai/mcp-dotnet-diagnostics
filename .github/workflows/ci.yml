@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore McpDotnetDiagnostics.slnx
+
+      - name: Build
+        run: dotnet build McpDotnetDiagnostics.slnx --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test src/McpDotnetDiagnostics.Tests/McpDotnetDiagnostics.Tests.csproj --no-build --configuration Release --verbosity normal
+        # Integration tests target the xUnit runner's own PID (Environment.ProcessId).
+        # No separate .NET process needed. TMPDIR is not required on Linux.

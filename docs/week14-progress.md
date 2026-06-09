@@ -12,8 +12,8 @@
 - README polished for developer clarity and human tone ✅
 - Demo GIF recorded and embedded in README ✅
 - NuGet packaging + publish ✅
-- Discoverability: GitHub topics, MCP registries — in progress
-- CONTRIBUTING.md, issue templates, CHANGELOG — in progress
+- Discoverability: GitHub topics, MCP registries ✅
+- CONTRIBUTING.md, issue templates, CHANGELOG ✅
 
 ---
 
@@ -209,15 +209,65 @@ README.md                           — install section updated
 
 ---
 
-## Day 5 — Discoverability
+## Day 5 — Discoverability ✅
 
-_In progress_
+### What Was Done
+
+**GitHub repo polish:**
+- Description: "MCP server for .NET runtime diagnostics — memory, GC, threads, and more"
+- Website: `https://www.nuget.org/packages/mcp-dotnet-diagnostics`
+- Topics: `mcp`, `dotnet`, `diagnostics`, `ai`, `claude`, `model-context-protocol`, `csharp`, `llm-tools`
+- Repo pinned on GitHub profile
+
+**MCP registries:**
+- Submitted to `punkpeye/awesome-mcp-servers` via PR — entry in Monitoring section
+- Submitted to `mcpservers.org/submit`
+- Submitted to Glama (`glama.ai/mcp/servers`) — pending review
+
+**PR entry:**
+```
+- [aayushmdesai14/mcp-dotnet-diagnostics](https://github.com/aayushmdesai14/mcp-dotnet-diagnostics) 🏠 🍎 🐧 - Live .NET runtime diagnostics for AI assistants. Ask Claude to diagnose memory leaks, GC pressure, LOH fragmentation, and thread starvation in any running .NET process — no code changes required. Install: `dotnet tool install -g mcp-dotnet-diagnostics`
+```
+
+Description deliberately names .NET-specific terms (LOH fragmentation, thread starvation)
+to signal expertise to the target audience — .NET developers who will recognize these as
+real problems they've hit.
+
+### Pending
+- Glama review — badge to be added to awesome-mcp-servers PR once score is live
+- Anthropic Discord `#mcp` channel post — Week 15
 
 ---
 
-## Days 6-7 — CONTRIBUTING, Issue Templates, v0.2.0
+## Days 6-7 — CONTRIBUTING, Issue Templates, CHANGELOG ✅
 
-_In progress_
+### What Was Built
+
+**CONTRIBUTING.md** — how to add a new tool end-to-end:
+- Tool class pattern with `[McpServerToolType]` attribute
+- Test requirements (unit + integration, minimum 2 per tool)
+- README table update requirement
+- Build from source instructions
+- Tool description guidelines — explains why good descriptions matter for autonomous chaining
+
+**Issue templates** (`.github/ISSUE_TEMPLATE/`):
+- `bug_report.md` — tool name, OS, .NET version, expected vs actual, macOS TMPDIR checklist
+- `feature_request.md` — what diagnostic data, what problem, EventSource involved
+- `new_tool.md` — tool name, counters, EventSource, who benefits
+
+**CHANGELOG.md:**
+- v0.2.0 — CI, NuGet packaging, README rewrite, issue templates, CONTRIBUTING
+- v0.1.0 — 7 tools, Claude Desktop integration, 34 tests, ADRs
+
+### Files Created
+
+```
+CONTRIBUTING.md                              — how to add a new tool
+CHANGELOG.md                                 — v0.1.0 and v0.2.0 entries
+.github/ISSUE_TEMPLATE/bug_report.md         — bug report template
+.github/ISSUE_TEMPLATE/feature_request.md    — feature request template
+.github/ISSUE_TEMPLATE/new_tool.md           — new tool proposal template
+```
 
 ---
 
@@ -235,6 +285,20 @@ whether to star a repo.
 **Self-targeting integration tests travel well.** The exact same test suite that runs
 locally on macOS (targeting `Environment.ProcessId`) runs on Linux CI without
 modification. The `TMPDIR` workaround is macOS-specific; Linux just works.
+
+**Discoverability is part of the product.** GitHub topics, a one-line repo description,
+and a PR to the right directory are all searchable signals. A developer searching for
+"dotnet mcp" on GitHub or mcpservers.org needs to find the repo — the code alone doesn't
+do that.
+
+**Name the specific problems in your description.** "LOH fragmentation" and "thread
+starvation" are .NET-specific terms. Using them signals expertise and filters for exactly
+the audience who will find the tool useful. Generic descriptions ("monitoring tool") get
+ignored.
+
+**CONTRIBUTING.md is infrastructure for other developers.** The tool description
+guidelines section is the most important part — it explains why descriptions matter for
+autonomous tool chaining, which is non-obvious to a first-time contributor.
 
 **NuGet Trusted Publishing has a chicken-and-egg problem.** The policy can't be activated
 until the package exists, but you need to publish to create the package. First publish

@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
 
@@ -33,3 +34,26 @@ jobs:
         run: dotnet test src/McpDotnetDiagnostics.Tests/McpDotnetDiagnostics.Tests.csproj --no-build --configuration Release --verbosity normal
         # Integration tests target the xUnit runner's own PID (Environment.ProcessId).
         # No separate .NET process needed. TMPDIR is not required on Linux.
+
+  publish:
+    name: Publish to NuGet
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Pack
+        run: dotnet pack src/McpDotnetDiagnostics -c Release -o ./nupkg
+
+      - name: Publish to NuGet
+        run: dotnet nuget push ./nupkg/*.nupkg --source https://api.nuget.org/v3/index.json

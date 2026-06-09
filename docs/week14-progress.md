@@ -11,7 +11,7 @@
 - CI pipeline running on every push ✅
 - README polished for developer clarity and human tone ✅
 - Demo GIF recorded and embedded in README ✅
-- NuGet packaging + publish — in progress
+- NuGet packaging + publish ✅
 - Discoverability: GitHub topics, MCP registries — in progress
 - CONTRIBUTING.md, issue templates, CHANGELOG — in progress
 
@@ -126,9 +126,86 @@ docs/assets/demo.gif    — health check demo, embedded in README
 
 ---
 
-## Day 4 — NuGet Publishing
+## Day 4 — NuGet Publishing ✅
 
-_In progress_
+### What Was Built
+
+`mcp-dotnet-diagnostics` published to NuGet.org as a .NET global tool. Install is now
+one command:
+
+```bash
+dotnet tool install -g mcp-dotnet-diagnostics
+```
+
+### csproj Changes
+
+Added NuGet packaging metadata to `McpDotnetDiagnostics.csproj`:
+
+```xml
+<PackAsTool>true</PackAsTool>
+<ToolCommandName>mcp-dotnet-diagnostics</ToolCommandName>
+<PackageId>mcp-dotnet-diagnostics</PackageId>
+<Version>0.2.0</Version>
+<Description>MCP server exposing .NET runtime diagnostics for AI assistants</Description>
+<Authors>Aayush Desai</Authors>
+<PackageProjectUrl>https://github.com/aayushmdesai14/mcp-dotnet-diagnostics</PackageProjectUrl>
+<PackageLicenseExpression>MIT</PackageLicenseExpression>
+<PackageTags>mcp;dotnet;diagnostics;ai;claude;model-context-protocol</PackageTags>
+<PackageReadmeFile>README.md</PackageReadmeFile>
+<RepositoryUrl>https://github.com/aayushmdesai14/mcp-dotnet-diagnostics</RepositoryUrl>
+<RepositoryType>git</RepositoryType>
+<Copyright>Copyright © 2026 Aayush Desai</Copyright>
+```
+
+README bundled into the package via `<None Include="..\..\README.md" Pack="true" PackagePath="\" />` —
+renders on nuget.org package page.
+
+### CI Publish Pipeline
+
+Added a `publish` job to `ci.yml` — triggers only on `v*` tag pushes, runs after
+`build-and-test` passes:
+
+- Packs with `dotnet pack`
+- Pushes with `dotnet nuget push` using `${{ secrets.NUGET_API_KEY }}`
+- `--skip-duplicate` flag makes re-runs on existing versions idempotent
+
+### NuGet Trusted Publishing
+
+Attempted Trusted Publishing (OIDC token exchange, no stored secrets). Hit two blockers:
+- The "Activate for 7 days" button on nuget.org was unresponsive for a pending private repo policy
+- The API keys page redirected to Trusted Publishing
+
+Workaround: used `?forceApiKeys=true` URL parameter to access the API keys page directly.
+First publish done manually via `dotnet nuget push`; all subsequent publishes handled by CI.
+
+### Key Decisions
+
+**Global tool over library package.** `PackAsTool=true` makes this an executable installable
+via `dotnet tool install -g`. Correct model for an MCP server — it's a process you run,
+not a library you import.
+
+**`--skip-duplicate` is mandatory.** Without it, re-running the pipeline on an existing
+version exits with code 1 and fails the job. With it, already-published versions are
+silently skipped.
+
+**Version in `.csproj` must match git tag intent.** The git tag `v0.2.0` and `<Version>0.2.0</Version>`
+must stay in sync — the tag triggers the pipeline, the csproj version determines what gets
+pushed to NuGet.
+
+### README Update
+
+Installation section now leads with the one-liner instead of clone+build:
+- `command` in `claude_desktop_config.json` simplified to just `mcp-dotnet-diagnostics`
+  (global tool on PATH, no binary path needed)
+- Clone+build moved to CONTRIBUTING.md (Day 6)
+
+### Files Modified
+
+```
+McpDotnetDiagnostics.csproj         — NuGet packaging metadata
+.github/workflows/ci.yml            — publish job added
+README.md                           — install section updated
+```
 
 ---
 
@@ -158,6 +235,14 @@ whether to star a repo.
 **Self-targeting integration tests travel well.** The exact same test suite that runs
 locally on macOS (targeting `Environment.ProcessId`) runs on Linux CI without
 modification. The `TMPDIR` workaround is macOS-specific; Linux just works.
+
+**NuGet Trusted Publishing has a chicken-and-egg problem.** The policy can't be activated
+until the package exists, but you need to publish to create the package. First publish
+always requires an API key; Trusted Publishing takes over after that. The `?forceApiKeys=true`
+URL parameter bypasses the redirect when nuget.org tries to push you to Trusted Publishing.
+
+**`--skip-duplicate` makes CI pipelines idempotent.** Without it, re-running a publish
+job on an already-published version fails with a 409. One flag fixes it permanently.
 
 **Node.js action deprecations are a recurring CI maintenance tax.** Same issue as
 ChefAgent Week 8. Pattern: opt in to the new version early (`FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`)

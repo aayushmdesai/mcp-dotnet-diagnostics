@@ -46,21 +46,15 @@ You don't tell Claude which tools to call. It figures that out from your questio
 
 ## Installation
 
-**1. Clone and build**
+**1. Install the tool**
 
 ```bash
-git clone https://github.com/aayushmdesai/mcp-dotnet-diagnostics.git
-cd mcp-dotnet-diagnostics
-dotnet publish src/McpDotnetDiagnostics -c Release -o ./publish
+dotnet tool install -g mcp-dotnet-diagnostics
 ```
 
-**2. Note the binary path**
+Requires .NET 8 SDK or later. [Get it here](https://dotnet.microsoft.com/download) if needed.
 
-```bash
-echo $(pwd)/publish/McpDotnetDiagnostics
-```
-
-**3. Add to Claude Desktop**
+**2. Add to Claude Desktop**
 
 Open `~/Library/Application Support/Claude/claude_desktop_config.json` while Claude Desktop
 is **fully quit** (Cmd+Q — not just the window closed), then add:
@@ -69,7 +63,7 @@ is **fully quit** (Cmd+Q — not just the window closed), then add:
 {
   "mcpServers": {
     "dotnet-diagnostics": {
-      "command": "/your/path/to/publish/McpDotnetDiagnostics",
+      "command": "mcp-dotnet-diagnostics",
       "env": {
         "TMPDIR": "/var/folders/xx/your-tmpdir/T/"
       }
@@ -78,22 +72,24 @@ is **fully quit** (Cmd+Q — not just the window closed), then add:
 }
 ```
 
-**4. Reopen Claude Desktop**
+**3. Reopen Claude Desktop**
 
 The `dotnet-diagnostics` connector appears in the tools menu. Ask it about any .NET process.
 
 ---
 
 > **macOS: the `TMPDIR` step is not optional.**
-> 
+>
 > The .NET diagnostics protocol finds processes through a Unix socket. On macOS, that socket
 > lives under `$TMPDIR` — not `/tmp/` where the library looks by default. Without this,
 > every tool call returns "process not found."
-> 
+>
 > Find yours with: `echo $TMPDIR`
 
 ---
 
+> **Want to contribute or build from source?**
+> See [CONTRIBUTING.md](CONTRIBUTING.md) for how to clone, build, and add new tools.
 ## Usage
 
 Find the PID of your target process:

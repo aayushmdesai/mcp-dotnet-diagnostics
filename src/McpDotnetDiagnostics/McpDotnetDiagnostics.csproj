@@ -9,7 +9,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>mcp-dotnet-diagnostics</ToolCommandName>
     <PackageId>mcp-dotnet-diagnostics</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Description>MCP server exposing .NET runtime diagnostics for AI assistants — memory, GC, threads, and more</Description>
     <Authors>Aayush Desai</Authors>
     <PackageProjectUrl>https://github.com/aayushmdesai/mcp-dotnet-diagnostics</PackageProjectUrl>

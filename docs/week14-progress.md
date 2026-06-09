@@ -233,8 +233,39 @@ Description deliberately names .NET-specific terms (LOH fragmentation, thread st
 to signal expertise to the target audience — .NET developers who will recognize these as
 real problems they've hit.
 
+### Glama ✅
+
+Submitted to Glama (`glama.ai/mcp/servers`). Required iterating on the Dockerfile
+config to get the build passing — three failure modes hit and resolved:
+
+1. **PATH not persisting across Docker RUN layers** — `export PATH` in one step doesn't
+   carry to the next. Fixed by using the full path `/root/.dotnet/dotnet` directly.
+2. **Missing `libicu` on debian:trixie-slim** — .NET requires ICU globalization libraries
+   not included in the slim image. Fixed by adding `apt-get update && apt-get install -y libicu-dev`.
+3. **Runtime not found at startup** — the published binary's apphost looks for .NET in
+   `/usr/share/dotnet` but the install script puts it in `/root/.dotnet`. Fixed with
+   `ln -s /root/.dotnet /usr/share/dotnet`.
+
+Final build step:
+```
+apt-get update && apt-get install -y libicu-dev && curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 10.0 && ln -s /root/.dotnet /usr/share/dotnet && /root/.dotnet/dotnet publish src/McpDotnetDiagnostics -c Release -o ./publish
+```
+
+**Result:** Server started, all 7 tools registered, MCP introspection passed.
+Glama release 1.0.0 created. Badge added to awesome-mcp-servers PR.
+
+```
+serverInfo: { name: 'McpDotnetDiagnostics', version: '0.2.0.0' }
+tools: get_process_info, get_memory_stats, get_gc_events, get_thread_stats,
+       get_event_counters, get_environment_info, list_counters
+```
+
+**Also added:**
+- `LICENSE` file (MIT) — was missing, caused Glama license check to fail
+- `glama.json` — profile metadata for Glama search visibility
+
 ### Pending
-- Glama review — badge to be added to awesome-mcp-servers PR once score is live
+- awesome-mcp-servers PR — waiting for maintainer merge
 - Anthropic Discord `#mcp` channel post — Week 15
 
 ---
@@ -307,6 +338,12 @@ URL parameter bypasses the redirect when nuget.org tries to push you to Trusted 
 
 **`--skip-duplicate` makes CI pipelines idempotent.** Without it, re-running a publish
 job on an already-published version fails with a 409. One flag fixes it permanently.
+
+**Glama Dockerfile for .NET has three non-obvious gotchas.** PATH doesn't persist
+across Docker RUN layers (use full binary path), `debian:trixie-slim` is missing `libicu`
+(.NET globalization dependency), and the published apphost looks for the runtime in
+`/usr/share/dotnet` not `/root/.dotnet` (fix with a symlink). None of these are documented
+anywhere — discovered through iteration.
 
 **Node.js action deprecations are a recurring CI maintenance tax.** Same issue as
 ChefAgent Week 8. Pattern: opt in to the new version early (`FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`)

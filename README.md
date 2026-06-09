@@ -1,5 +1,5 @@
 ![CI](https://github.com/aayushmdesai/mcp-dotnet-diagnostics/actions/workflows/ci.yml/badge.svg)
-
+[![Glama](https://glama.ai/mcp/servers/aayushmdesai/mcp-dotnet-diagnostics/badges/score.svg)](https://glama.ai/mcp/servers/aayushmdesai/mcp-dotnet-diagnostics)
 # mcp-dotnet-diagnostics
 
 Give your AI assistant real-time visibility into your .NET application's runtime health.
